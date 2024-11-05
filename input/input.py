@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/input', methods=['POST'])
 def get_input():
-    # Receive hyperparameters from the user
+    # Receive hyperparameters
     hyperparams = request.json
     
     # Forward hyperparameters to the processing service
