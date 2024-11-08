@@ -8,7 +8,6 @@ def get_output():
     status = data['status']
     accuracy = data['accuracy']
 
-    # Store the result in some storage (e.g., a log file, cloud storage)
     if status == 'success':
         return jsonify({'message': 'Model saved with accuracy', 'accuracy': accuracy})
     else:
