@@ -3,13 +3,14 @@ pipeline {
 
     environment {
         ACCURACY_THRESHOLD = "0.80"
+        RETRY_COUNT = 0
+        MAX_RETRIES = 3
     }
 
     stages {
         stage('Clone Repository') {
             steps {
                 git 'https://github.com/rbcse/ci-cd'
-
             }
         }
 
@@ -43,9 +44,16 @@ pipeline {
                 script {
                     def outputResponse = sh(script: 'curl http://localhost:5002/output', returnStdout: true).trim()
                     echo "Output response: ${outputResponse}"
-                    def accuracy = sh(script: 'echo $outputResponse | jq -r .accuracy', returnStdout: true).trim()
-                    if (accuracy.toDouble() < env.ACCURACY_THRESHOLD.toDouble()) {
-                        error("Model accuracy is below the threshold, retrying with different hyperparameters...")
+                    def accuracy = outputResponse.tokenize(',').find { it.contains('accuracy') }?.split(':')[1]?.trim()?.toDouble()
+                    echo "Model accuracy: ${accuracy}"
+                    
+                    if (accuracy == null || accuracy < env.ACCURACY_THRESHOLD.toDouble()) {
+                        env.RETRY_COUNT = env.RETRY_COUNT.toInteger() + 1
+                        if (env.RETRY_COUNT.toInteger() <= env.MAX_RETRIES.toInteger()) {
+                            error("Model accuracy is below the threshold, retrying with different hyperparameters...")
+                        } else {
+                            error("Exceeded max retries. Model accuracy did not meet the threshold.")
+                        }
                     }
                 }
             }
@@ -53,7 +61,7 @@ pipeline {
 
         stage('Retrain Model with Different Hyperparameters') {
             when {
-                expression { currentBuild.result == 'FAILURE' }
+                expression { currentBuild.result == 'FAILURE' && env.RETRY_COUNT.toInteger() <= env.MAX_RETRIES.toInteger() }
             }
             steps {
                 script {
@@ -69,8 +77,7 @@ pipeline {
             echo "Model training and deployment successful!"
         }
         failure {
-            echo "Model training failed, retrying..."
-            build job: 'ml-training-job', parameters: []
+            echo "Model training failed, exceeded retries or another issue occurred."
         }
     }
 }
