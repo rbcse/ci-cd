@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git url: 'https://github.com/rbcse/ci-cd', credentialsId: '1234'
+                git url: 'https://github.com/rbcse/ci-cd'
 
             }
         }
