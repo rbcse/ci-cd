@@ -7,6 +7,7 @@ def get_output():
     data = request.json
     status = data['status']
     accuracy = data['accuracy']
+    #bc
 
     if status == 'success':
         return jsonify({'message': 'Model saved with accuracy', 'accuracy': accuracy})
