@@ -10,6 +10,6 @@ def get_input():
     
     response = requests.post('http://processing_service:5001/process', json=hyperparams)
     return response.json()
-
+#ftrb trb
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
