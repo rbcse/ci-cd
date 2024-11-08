@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/input', methods=['POST'])
 def get_input():
-    # Receive hyperparametersvsgesf
+    # Receive hyperparameters
     hyperparams = request.json
     
     response = requests.post('http://processing_service:5001/process', json=hyperparams)
