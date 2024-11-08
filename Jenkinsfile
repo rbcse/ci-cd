@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/your_username/ml-automation.git'
+                git 'https://github.com/rbcse/ci-cd', credentialsId: '1234'
             }
         }
 
